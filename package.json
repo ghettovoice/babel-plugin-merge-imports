@@ -1,0 +1,25 @@
+{
+  "name": "babel-plugin-ol-to-openlayers",
+  "version": "0.1.0",
+  "description": "Transform plugin for Babel to convert ES2015 imports of [ol](https://www.npmjs.com/package/ol) to require of [openlayers](https://www.npmjs.com/package/openlayers)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghettovoice/babel-plugin-ol-to-openlayers.git"
+  },
+  "keywords": [
+    "babel",
+    "plugin",
+    "ol",
+    "openlayers"
+  ],
+  "author": "Vladimir Vershinin <ghettovoice@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ghettovoice/babel-plugin-ol-to-openlayers/issues"
+  },
+  "homepage": "https://github.com/ghettovoice/babel-plugin-ol-to-openlayers#readme"
+}
