@@ -2,64 +2,85 @@ const OPENLAYERS_PKG = 'openlayers'
 const OL_REGEX = /^ol(?:\/(.*))?$/
 const OL_VAR = '_ol_'
 
-const genNestedMemberExpression = (node, names, t) => {
-  names = names.reverse()
-  if (node.name[ 0 ] === node.name[ 0 ].toUpperCase() && names.length) {
-    names[ 0 ] = names[ 0 ][ 0 ].toUpperCase() + names[ 0 ].substr(1)
+const createNestedMemberExpression = (name, parts, t) => {
+  if (parts.length) {
+    parts = parts.slice().reverse()
+
+    const matches = name.match(new RegExp(`(${parts[0]})`, 'i'))
+    if (!matches) throw new Error(`Invalid ol identifier ${name}. You should use original OpenLayers identifier in variable name`)
+
+    name = matches[1]
+
+    return t.memberExpression(
+      parts.slice(1).reduce(
+        (node, name) => t.memberExpression(
+          node,
+          t.identifier(name)
+        ),
+        t.identifier(OL_VAR)
+      ),
+      t.identifier(name)
+    )
   }
 
-  return t.memberExpression(
-    names.slice(1).reduce(
-      (node, name) => t.memberExpression(
-        node,
-        t.identifier(name)
-      ),
-      t.identifier(OL_VAR)
-    ),
-    t.identifier(names[ 0 ])
-  )
+  return t.identifier(name)
 }
 
+const createRequireExpression = (name, t) => t.variableDeclaration(
+  'var',
+  [
+    t.variableDeclarator(
+      t.identifier(OL_VAR),
+      t.callExpression(
+        t.identifier('require'),
+        [
+          t.stringLiteral(name)
+        ]
+      )
+    )
+  ]
+)
+
 module.exports = function ({ types: t }) {
-  const imports = {}
+  const identifiers = {}
+  let openlayersImported = false
 
   return {
     visitor: {
-      Program (path) {
-        path.node.body.unshift(
-          t.variableDeclaration(
-            'var',
-            [
-              t.variableDeclarator(
-                t.identifier(OL_VAR),
-                t.callExpression(
-                  t.identifier('require'),
-                  [
-                    t.stringLiteral(OPENLAYERS_PKG)
-                  ]
-                )
-              )
-            ]
-          )
-        )
-      },
       ImportDeclaration (path) {
         const node = path.node
         const spec = node.specifiers.find(spec => t.isImportDefaultSpecifier(spec))
         const matches = node.source.value.match(OL_REGEX)
 
         if (spec && matches) {
-          imports[ spec.local.name ] = matches[ 1 ].split('/')
+          identifiers[ spec.local.name ] = matches[ 1 ].split('/')
           path.remove()
+
+          if (!openlayersImported) {
+            path.parent.body.unshift(createRequireExpression(OPENLAYERS_PKG, t))
+            openlayersImported = true
+          }
         }
       },
-      Identifier (path) {
-        if (imports[ path.node.name ]) {
-          if (path.parentPath.node.callee) {
-            path.parentPath.node.callee = genNestedMemberExpression(path.node, imports[ path.node.name ], t)
-          } else if (path.parentPath.node.object) {
-            path.parentPath.node.object = genNestedMemberExpression(path.node, imports[ path.node.name ], t)
-          }
+      VariableDeclarator (path) {
+        const node = path.node
+
+        if (t.isIdentifier(node.init) && identifiers[ node.init.name ]) {
+          node.init = createNestedMemberExpression(node.init.name, identifiers[ node.init.name ], t)
+        }
+      },
+      MemberExpression (path) {
+        const node = path.node
+
+        if (t.isIdentifier(node.object) && identifiers[ node.object.name ]) {
+          node.object = createNestedMemberExpression(node.object.name, identifiers[ node.object.name ], t)
+        }
+      },
+      NewExpression (path) {
+        const node = path.node
+
+        if (t.isIdentifier(node.callee) && identifiers[ node.callee.name ]) {
+          node.callee = createNestedMemberExpression(node.callee.name, identifiers[ node.callee.name ], t)
         }
       }
     }
