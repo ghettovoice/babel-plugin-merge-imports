@@ -1,8 +1,21 @@
-# babel-plugin-ol-to-openlayers
+# babel-plugin-transform-nested-import
 
-> Transform plugin for Babel to convert ES2015 imports of [ol](https://www.npmjs.com/package/ol) to require of [openlayers](https://www.npmjs.com/package/openlayers)
+> Plugin for Babel for transforming nested imports
 
 ## Example
+
+**.babelrc**
+```json
+{
+  "plugins": [
+    ["./src", {
+      "pkg": "openlayers",
+      "pkgVar": "__ol",
+      "regex": "^ol(?:\/(.*))?$",
+    }]
+  ]
+}
+```
 
 **Before**
 ```js

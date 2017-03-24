@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    ["./src", {
+      "pkg": "openlayers",
+      "pkgVar": "__ol",
+      "regex": "^ol(?:\/(.*))?$",
+    }]
+  ]
+}

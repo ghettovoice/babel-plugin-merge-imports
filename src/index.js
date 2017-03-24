@@ -1,15 +1,11 @@
-const OPENLAYERS_PKG = 'openlayers'
-const OL_REGEX = /^ol(?:\/(.*))?$/
-const OL_VAR = '_ol_'
-
-const createNestedMemberExpression = (name, parts, t) => {
+const createNestedMemberExpression = (pkgVarName, varName, parts, t) => {
   if (parts.length) {
     parts = parts.slice().reverse()
 
-    const matches = name.match(new RegExp(`(${parts[0]})`, 'i'))
-    if (!matches) throw new Error(`Invalid ol identifier ${name}. You should use original OpenLayers identifier in variable name`)
+    const matches = varName.match(new RegExp(`(${parts[0]})`, 'i'))
+    if (!matches) throw new Error(`Invalid identifier ${varName}`)
 
-    name = matches[1]
+    varName = matches[1]
 
     return t.memberExpression(
       parts.slice(1).reduce(
@@ -17,24 +13,24 @@ const createNestedMemberExpression = (name, parts, t) => {
           node,
           t.identifier(name)
         ),
-        t.identifier(OL_VAR)
+        t.identifier(pkgVarName)
       ),
-      t.identifier(name)
+      t.identifier(varName)
     )
   }
 
-  return t.identifier(name)
+  return t.identifier(varName)
 }
 
-const createRequireExpression = (name, t) => t.variableDeclaration(
+const createRequireExpression = (pkgName, varName, t) => t.variableDeclaration(
   'var',
   [
     t.variableDeclarator(
-      t.identifier(OL_VAR),
+      t.identifier(varName),
       t.callExpression(
         t.identifier('require'),
         [
-          t.stringLiteral(name)
+          t.stringLiteral(pkgName)
         ]
       )
     )
@@ -43,44 +39,47 @@ const createRequireExpression = (name, t) => t.variableDeclaration(
 
 module.exports = function ({ types: t }) {
   const identifiers = {}
-  let openlayersImported = false
+  let pkgImported = false
 
   return {
     visitor: {
-      ImportDeclaration (path) {
+      ImportDeclaration (path, state) {
+        const opts = state.opts
+        if (!opts.regex || !opts.pkg || !opts.pkgVar) return
+
         const node = path.node
         const spec = node.specifiers.find(spec => t.isImportDefaultSpecifier(spec))
-        const matches = node.source.value.match(OL_REGEX)
+        const matches = node.source.value.match(new RegExp(opts.regex))
 
         if (spec && matches) {
           identifiers[ spec.local.name ] = matches[ 1 ].split('/')
           path.remove()
 
-          if (!openlayersImported) {
-            path.parent.body.unshift(createRequireExpression(OPENLAYERS_PKG, t))
-            openlayersImported = true
+          if (!pkgImported) {
+            path.parent.body.unshift(createRequireExpression(opts.pkg, opts.pkgVar, t))
+            pkgImported = true
           }
         }
       },
-      VariableDeclarator (path) {
+      VariableDeclarator (path, { opts }) {
         const node = path.node
 
         if (t.isIdentifier(node.init) && identifiers[ node.init.name ]) {
-          node.init = createNestedMemberExpression(node.init.name, identifiers[ node.init.name ], t)
+          node.init = createNestedMemberExpression(opts.pkgVar, node.init.name, identifiers[ node.init.name ], t)
         }
       },
-      MemberExpression (path) {
+      MemberExpression (path, { opts }) {
         const node = path.node
 
         if (t.isIdentifier(node.object) && identifiers[ node.object.name ]) {
-          node.object = createNestedMemberExpression(node.object.name, identifiers[ node.object.name ], t)
+          node.object = createNestedMemberExpression(opts.pkgVar, node.object.name, identifiers[ node.object.name ], t)
         }
       },
-      NewExpression (path) {
+      NewExpression (path, { opts }) {
         const node = path.node
 
         if (t.isIdentifier(node.callee) && identifiers[ node.callee.name ]) {
-          node.callee = createNestedMemberExpression(node.callee.name, identifiers[ node.callee.name ], t)
+          node.callee = createNestedMemberExpression(opts.pkgVar, node.callee.name, identifiers[ node.callee.name ], t)
         }
       }
     }

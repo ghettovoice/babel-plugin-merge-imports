@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-ol-to-openlayers",
+  "name": "babel-plugin-transform-nested-import",
   "version": "0.1.0",
   "description": "Transform plugin for Babel to convert ES2015 imports of [ol](https://www.npmjs.com/package/ol) to require of [openlayers](https://www.npmjs.com/package/openlayers)",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ghettovoice/babel-plugin-ol-to-openlayers.git"
+    "url": "git+https://github.com/ghettovoice/babel-plugin-transform-nested-import.git"
   },
   "keywords": [
     "babel",
@@ -19,7 +19,7 @@
   "author": "Vladimir Vershinin <ghettovoice@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ghettovoice/babel-plugin-ol-to-openlayers/issues"
+    "url": "https://github.com/ghettovoice/babel-plugin-transform-nested-import/issues"
   },
-  "homepage": "https://github.com/ghettovoice/babel-plugin-ol-to-openlayers#readme"
+  "homepage": "https://github.com/ghettovoice/babel-plugin-transform-nested-import#readme"
 }

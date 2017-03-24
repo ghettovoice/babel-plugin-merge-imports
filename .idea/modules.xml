@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/babel-plugin-ol-to-openlayers.iml" filepath="$PROJECT_DIR$/babel-plugin-ol-to-openlayers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/babel-plugin-transform-nested-import.iml" filepath="$PROJECT_DIR$/babel-plugin-transform-nested-import.iml" />
     </modules>
   </component>
 </project>
