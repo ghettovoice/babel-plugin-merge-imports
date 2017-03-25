@@ -38,13 +38,18 @@ const createRequireExpression = (pkgName, varName, t) => t.variableDeclaration(
 )
 
 module.exports = function ({ types: t }) {
-  const identifiers = {}
+  let identifiers
 
   return {
     visitor: {
       Program: {
+        enter () {
+          identifiers = {}
+        },
         exit (path, { opts }) {
-          path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
+          if (Object.keys(identifiers).length) {
+            path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
+          }
         }
       },
       ImportDeclaration (path, state) {
