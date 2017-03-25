@@ -39,10 +39,14 @@ const createRequireExpression = (pkgName, varName, t) => t.variableDeclaration(
 
 module.exports = function ({ types: t }) {
   const identifiers = {}
-  let pkgImported = false
 
   return {
     visitor: {
+      Program: {
+        exit (path, { opts }) {
+          path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
+        }
+      },
       ImportDeclaration (path, state) {
         const opts = state.opts
         if (!opts.regex || !opts.pkg || !opts.pkgVar) return
@@ -54,11 +58,6 @@ module.exports = function ({ types: t }) {
         if (spec && matches) {
           identifiers[ spec.local.name ] = matches[ 1 ].split('/')
           path.remove()
-
-          if (!pkgImported) {
-            path.parent.body.unshift(createRequireExpression(opts.pkg, opts.pkgVar, t))
-            pkgImported = true
-          }
         }
       },
       VariableDeclarator (path, { opts }) {
