@@ -85,6 +85,48 @@ module.exports = function ({ types: t }) {
         if (t.isIdentifier(node.callee) && identifiers[ node.callee.name ]) {
           node.callee = createNestedMemberExpression(opts.pkgVar, node.callee.name, identifiers[ node.callee.name ], t)
         }
+      },
+      BinaryExpression (path, { opts }) {
+        const node = path.node
+
+        if (t.isIdentifier(node.left) && identifiers[ node.left.name ]) {
+          node.left = createNestedMemberExpression(opts.pkgVar, node.left.name, identifiers[ node.left.name ], t)
+        }
+        if (t.isIdentifier(node.right) && identifiers[ node.right.name ]) {
+          node.right = createNestedMemberExpression(opts.pkgVar, node.right.name, identifiers[ node.right.name ], t)
+        }
+      },
+      AssignmentExpression (path, { opts }) {
+        const node = path.node
+
+        if (t.isIdentifier(node.right) && identifiers[ node.right.name ]) {
+          node.right = createNestedMemberExpression(opts.pkgVar, node.right.name, identifiers[ node.right.name ], t)
+        }
+      },
+      ReturnStatement (path, { opts }) {
+        const node = path.node
+
+        if (t.isIdentifier(node.argument) && identifiers[ node.argument.name ]) {
+          node.argument = createNestedMemberExpression(opts.pkgVar, node.argument.name, identifiers[ node.argument.name ], t)
+        }
+      },
+      ArrayExpression (path, { opts }) {
+        const node = path.node
+
+        node.elements = node.elements.map(elem => {
+          if (t.isIdentifier(elem) && identifiers[ elem.name ]) {
+            return createNestedMemberExpression(opts.pkgVar, elem.name, identifiers[ elem.name ], t)
+          }
+
+          return elem
+        })
+      },
+      ObjectProperty (path, { opts }) {
+        const node = path.node
+
+        if (t.isIdentifier(node.value) && identifiers[ node.value.name ]) {
+          node.value = createNestedMemberExpression(opts.pkgVar, node.value.name, identifiers[ node.value.name ], t)
+        }
       }
     }
   }

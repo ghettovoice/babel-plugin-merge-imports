@@ -2,6 +2,9 @@ import Map from 'ol/map'
 import tilegrid from 'ol/tilegrid'
 import VectorLayer from 'ol/layer/vector'
 import VectorSource from 'ol/source/vector'
+import ImageStyle from 'ol/style/image'
+import Icon from 'ol/style/icon'
+import Circle from 'ol/style/circle'
 
 const q = tilegrid
 const qq = Map.prototype.getView
@@ -16,3 +19,18 @@ const map = new Map({
     })
   ]
 })
+
+const v = false
+const vv = v instanceof ImageStyle
+const Ctor = Icon
+
+function func () {
+  return Circle
+}
+
+const a = [ Circle, Icon ]
+
+const b = {
+  imageCtor: ImageStyle,
+  circleCtor: Circle
+}
