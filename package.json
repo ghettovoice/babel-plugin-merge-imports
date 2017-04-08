@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-transform-nested-import",
+  "name": "babel-plugin-merge-imports",
   "version": "0.1.0",
   "description": "Transform plugin for Babel to convert ES2015 imports of [ol](https://www.npmjs.com/package/ol) to require of [openlayers](https://www.npmjs.com/package/openlayers)",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ghettovoice/babel-plugin-transform-nested-import.git"
+    "url": "git+https://github.com/ghettovoice/babel-plugin-merge-imports.git"
   },
   "keywords": [
     "babel",
@@ -19,7 +19,7 @@
   "author": "Vladimir Vershinin <ghettovoice@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ghettovoice/babel-plugin-transform-nested-import/issues"
+    "url": "https://github.com/ghettovoice/babel-plugin-merge-imports/issues"
   },
-  "homepage": "https://github.com/ghettovoice/babel-plugin-transform-nested-import#readme"
+  "homepage": "https://github.com/ghettovoice/babel-plugin-merge-imports#readme"
 }

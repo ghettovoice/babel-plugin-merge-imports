@@ -1,4 +1,4 @@
-# babel-plugin-transform-nested-import
+# babel-plugin-merge-imports
 
 > Plugin for Babel for transforming nested imports
 
