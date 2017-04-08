@@ -37,6 +37,13 @@ const createRequireExpression = (pkgName, varName, t) => t.variableDeclaration(
   ]
 )
 
+const createImportExpression = (pkgName, varName, t) => t.importDeclaration(
+  [
+    t.importDefaultSpecifier(t.identifier(varName))
+  ],
+  t.stringLiteral(pkgName)
+)
+
 module.exports = function ({ types: t }) {
   let identifiers
 
@@ -48,7 +55,8 @@ module.exports = function ({ types: t }) {
         },
         exit (path, { opts }) {
           if (Object.keys(identifiers).length) {
-            path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
+            // path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
+            path.unshiftContainer('body', createImportExpression(opts.pkg, opts.pkgVar, t))
           }
         }
       },
