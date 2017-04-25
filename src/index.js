@@ -135,6 +135,13 @@ module.exports = function ({ types: t }) {
         if (t.isIdentifier(node.value) && identifiers[ node.value.name ]) {
           node.value = createNestedMemberExpression(opts.pkgVar, node.value.name, identifiers[ node.value.name ], t)
         }
+      },
+      ClassDeclaration (path, { opts }) {
+        const node = path.node
+
+        if (t.isIdentifier(node.superClass) && identifiers[ node.superClass.name ]) {
+          node.superClass = createNestedMemberExpression(opts.pkgVar, node.superClass.name, identifiers[ node.superClass.name ], t)
+        }
       }
     }
   }
