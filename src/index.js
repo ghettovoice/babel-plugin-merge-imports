@@ -41,6 +41,23 @@ module.exports = function ({ types: t }) {
         exit (path, { opts }) {
           if (Object.keys(identifiers).length) {
             path.unshiftContainer('body', createImportExpression(opts.pkg, opts.pkgVar, t))
+
+            const bodyPath = path.get('body')
+            const imports = bodyPath.filter(n => t.isImportDeclaration(n)) || []
+            let lastPath = imports[imports.length - 1]
+
+            Object.keys(identifiers).forEach((localName) => {
+              const varNode = t.variableDeclaration('const', [
+                t.variableDeclarator(
+                  t.identifier(localName),
+                  createNestedMemberExpression(opts.pkgVar, localName, identifiers[localName], t)
+                )
+              ])
+
+              if (lastPath) {
+                lastPath = lastPath.insertAfter(varNode)[0]
+              }
+            })
           }
         }
       },
@@ -54,25 +71,6 @@ module.exports = function ({ types: t }) {
         if (spec && matches) {
           identifiers[ spec.local.name ] = matches[ 1 ].split('/')
           path.remove()
-        }
-      },
-      Identifier (path, {opts}) {
-        const node = path.node
-
-        if (identifiers[node.name]) {
-          Object.keys(path.parent).forEach(k => {
-            if (Array.isArray(path.parent[k])) {
-              path.parent[k] = path.parent[k].map(elem => {
-                if (elem === node) {
-                  return createNestedMemberExpression(opts.pkgVar, node.name, identifiers[node.name], t)
-                }
-
-                return elem
-              })
-            } else if (path.parent[k] === node) {
-              path.parent[k] = createNestedMemberExpression(opts.pkgVar, node.name, identifiers[node.name], t)
-            }
-          })
         }
       },
     }
