@@ -5,6 +5,8 @@ import VectorSource from 'ol/source/vector'
 import ImageStyle from 'ol/style/image'
 import Icon from 'ol/style/icon'
 import Circle from 'ol/style/circle'
+import easing from 'ol/easing'
+import control from 'ol/control'
 
 const q = tilegrid
 const qq = Map.prototype.getView
@@ -33,4 +35,12 @@ const a = [ Circle, Icon ]
 const b = {
   imageCtor: ImageStyle,
   circleCtor: Circle
+}
+
+control.defaults()
+
+export {
+  easing,
+  Map,
+  VectorLayer
 }

@@ -22,21 +22,6 @@ const createNestedMemberExpression = (pkgVarName, varName, parts, t) => {
   return t.identifier(varName)
 }
 
-const createRequireExpression = (pkgName, varName, t) => t.variableDeclaration(
-  'var',
-  [
-    t.variableDeclarator(
-      t.identifier(varName),
-      t.callExpression(
-        t.identifier('require'),
-        [
-          t.stringLiteral(pkgName)
-        ]
-      )
-    )
-  ]
-)
-
 const createImportExpression = (pkgName, varName, t) => t.importDeclaration(
   [
     t.importDefaultSpecifier(t.identifier(varName))
@@ -55,13 +40,11 @@ module.exports = function ({ types: t }) {
         },
         exit (path, { opts }) {
           if (Object.keys(identifiers).length) {
-            // path.unshiftContainer('body', createRequireExpression(opts.pkg, opts.pkgVar, t))
             path.unshiftContainer('body', createImportExpression(opts.pkg, opts.pkgVar, t))
           }
         }
       },
-      ImportDeclaration (path, state) {
-        const opts = state.opts
+      ImportDeclaration (path, {opts}) {
         if (!opts.regex || !opts.pkg || !opts.pkgVar) return
 
         const node = path.node
@@ -73,76 +56,25 @@ module.exports = function ({ types: t }) {
           path.remove()
         }
       },
-      VariableDeclarator (path, { opts }) {
+      Identifier (path, {opts}) {
         const node = path.node
 
-        if (t.isIdentifier(node.init) && identifiers[ node.init.name ]) {
-          node.init = createNestedMemberExpression(opts.pkgVar, node.init.name, identifiers[ node.init.name ], t)
+        if (identifiers[node.name]) {
+          Object.keys(path.parent).forEach(k => {
+            if (Array.isArray(path.parent[k])) {
+              path.parent[k] = path.parent[k].map(elem => {
+                if (elem === node) {
+                  return createNestedMemberExpression(opts.pkgVar, node.name, identifiers[node.name], t)
+                }
+
+                return elem
+              })
+            } else if (path.parent[k] === node) {
+              path.parent[k] = createNestedMemberExpression(opts.pkgVar, node.name, identifiers[node.name], t)
+            }
+          })
         }
       },
-      MemberExpression (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.object) && identifiers[ node.object.name ]) {
-          node.object = createNestedMemberExpression(opts.pkgVar, node.object.name, identifiers[ node.object.name ], t)
-        }
-      },
-      NewExpression (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.callee) && identifiers[ node.callee.name ]) {
-          node.callee = createNestedMemberExpression(opts.pkgVar, node.callee.name, identifiers[ node.callee.name ], t)
-        }
-      },
-      BinaryExpression (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.left) && identifiers[ node.left.name ]) {
-          node.left = createNestedMemberExpression(opts.pkgVar, node.left.name, identifiers[ node.left.name ], t)
-        }
-        if (t.isIdentifier(node.right) && identifiers[ node.right.name ]) {
-          node.right = createNestedMemberExpression(opts.pkgVar, node.right.name, identifiers[ node.right.name ], t)
-        }
-      },
-      AssignmentExpression (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.right) && identifiers[ node.right.name ]) {
-          node.right = createNestedMemberExpression(opts.pkgVar, node.right.name, identifiers[ node.right.name ], t)
-        }
-      },
-      ReturnStatement (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.argument) && identifiers[ node.argument.name ]) {
-          node.argument = createNestedMemberExpression(opts.pkgVar, node.argument.name, identifiers[ node.argument.name ], t)
-        }
-      },
-      ArrayExpression (path, { opts }) {
-        const node = path.node
-
-        node.elements = node.elements.map(elem => {
-          if (t.isIdentifier(elem) && identifiers[ elem.name ]) {
-            return createNestedMemberExpression(opts.pkgVar, elem.name, identifiers[ elem.name ], t)
-          }
-
-          return elem
-        })
-      },
-      ObjectProperty (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.value) && identifiers[ node.value.name ]) {
-          node.value = createNestedMemberExpression(opts.pkgVar, node.value.name, identifiers[ node.value.name ], t)
-        }
-      },
-      ClassDeclaration (path, { opts }) {
-        const node = path.node
-
-        if (t.isIdentifier(node.superClass) && identifiers[ node.superClass.name ]) {
-          node.superClass = createNestedMemberExpression(opts.pkgVar, node.superClass.name, identifiers[ node.superClass.name ], t)
-        }
-      }
     }
   }
 }
