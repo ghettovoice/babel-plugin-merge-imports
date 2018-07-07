@@ -65,13 +65,20 @@ module.exports = function ({ types: t }) {
         if (!opts.regex || !opts.pkg || !opts.pkgVar) return
 
         const node = path.node
-        const spec = node.specifiers.find(spec => t.isImportDefaultSpecifier(spec))
         const matches = node.source.value.match(new RegExp(opts.regex))
 
-        if (spec && matches) {
-          identifiers[ spec.local.name ] = matches[ 1 ].split('/')
-          path.remove()
+        if (!matches) {
+          return
         }
+
+        node.specifiers.forEach(spec => {
+          identifiers[ spec.local.name ] = matches[ 1 ].split('/')
+          if (t.isImportSpecifier(spec)) {
+            identifiers[ spec.local.name ].push(spec.imported.name)
+          }
+        })
+
+        path.remove()
       },
     }
   }
