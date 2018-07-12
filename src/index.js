@@ -2,11 +2,6 @@ const createNestedMemberExpression = (pkgVarName, varName, parts, t) => {
   if (parts.length) {
     parts = parts.slice().reverse()
 
-    const matches = varName.match(new RegExp(`(${parts[0]})`, 'i'))
-    if (!matches) throw new Error(`Invalid identifier ${varName}`)
-
-    varName = matches[1]
-
     return t.memberExpression(
       parts.slice(1).reduce(
         (node, name) => t.memberExpression(
@@ -15,7 +10,7 @@ const createNestedMemberExpression = (pkgVarName, varName, parts, t) => {
         ),
         t.identifier(pkgVarName)
       ),
-      t.identifier(varName)
+      t.identifier(parts[0])
     )
   }
 

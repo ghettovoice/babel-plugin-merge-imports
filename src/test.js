@@ -9,6 +9,7 @@ import Icon from 'ol/style/Icon'
 import Circle from 'ol/style/Circle'
 import easing from 'ol/easing'
 import {defaults as defaultsControl} from 'ol/control'
+import {getCenter as getExtentCenter} from 'ol/extent'
 
 const q = tilegrid
 const qq = Map.prototype.getView
@@ -37,7 +38,8 @@ const a = [ Circle, Icon ]
 
 const b = {
   imageCtor: ImageStyle,
-  circleCtor: Circle
+  circleCtor: Circle,
+  getExtentCenter: getExtentCenter,
 }
 
 defaultsControl()
