@@ -10,6 +10,7 @@ import Circle from 'ol/style/Circle'
 import easing from 'ol/easing'
 import {defaults as defaultsControl} from 'ol/control'
 import {getCenter as getExtentCenter} from 'ol/extent'
+import PointerInteraction, {handleEvent as baseHandleEvent} from 'ol/interaction/Pointer'
 
 const q = tilegrid
 const qq = Map.prototype.getView
@@ -40,6 +41,8 @@ const b = {
   imageCtor: ImageStyle,
   circleCtor: Circle,
   getExtentCenter: getExtentCenter,
+  baseHandleEvent,
+  PointerInteraction,
 }
 
 defaultsControl()

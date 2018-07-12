@@ -1,16 +1,11 @@
 const createNestedMemberExpression = (pkgVarName, varName, parts, t) => {
   if (parts.length) {
-    parts = parts.slice().reverse()
-
-    return t.memberExpression(
-      parts.slice(1).reduce(
-        (node, name) => t.memberExpression(
-          node,
-          t.identifier(name)
-        ),
-        t.identifier(pkgVarName)
+    return parts.reduce(
+      (node, name) => t.memberExpression(
+        node,
+        t.identifier(name)
       ),
-      t.identifier(parts[0])
+      t.identifier(pkgVarName)
     )
   }
 
